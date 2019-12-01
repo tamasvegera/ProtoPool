@@ -1,0 +1,2 @@
+# ProtoPool
+ MicroCoin mining pool
