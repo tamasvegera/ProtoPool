@@ -91,7 +91,7 @@ def send_payment(from_account, to_account, amount, block):
 #        return False
     payload = "pool share, block: " + str(block)
     payload = payload.encode('utf-8')
-    msg = {"jsonrpc":"2.0","method":"sendto","params":{"sender":from_account,"target":to_account,"amount":amount,"fee":accountancy.payment_fee,"payload":payload.hex(),"payload_method":"aes","pwd":wallet_password},"id":123}
+    msg = {"jsonrpc":"2.0","method":"sendto","params":{"sender":from_account,"target":to_account,"amount":amount,"fee":accountancy.payment_fee,"payload":payload.hex(),"payload_method":"none","pwd":wallet_password},"id":123}
     response_raw = requests.post(wallet_server_ip_port, json=msg)
     response = json.loads(response_raw.text)
     if "result" in response:
