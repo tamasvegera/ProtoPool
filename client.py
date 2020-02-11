@@ -41,7 +41,6 @@ def client_handler():
                 cli.close()
                 break
             data_str = data.decode("utf-8")
-            print("From wallet:" + data_str)
             data_str = data_str.replace('null', '"null"')
             msgs = data_str.split('\n')
             for msg in msgs:
@@ -75,11 +74,9 @@ def mining_submit_handler(submit_msg, extranonce):
     nonce = str(int(submit_msg["params"][4], 16))
     payload = extranonce + submit_msg["params"][2]
     msg = '{"id": 10, "method": "miner-submit", "params": [{"payload": "' + payload + '","timestamp":' + timestamp_dec + ',"nonce":' + nonce + '}]}\n'
-    print("To wallet: " + msg)
+    #print("To wallet: " + msg)
 
-    print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
+    #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
     if wallet_json_rpc.wallet_ok == True:
         cli.sendall(msg.encode())
-        #DELETE THE LINE BELOW
-        #wallet_json_rpc.wallet_ok = False

@@ -1,5 +1,6 @@
 import requests, json, threading, time
 import mining, wallet_json_rpc, mysql_handler
+from params import *
 
 payment_batches = []
 
@@ -70,15 +71,16 @@ def calc_share_rates(last_block, from_account):
     for payment in new_payment_batch.payments:
         text = "To: " + str(payment) + ", " + str(new_payment_batch.payments[payment]) + '\n'
         new_payment_batch_text = new_payment_batch_text + text
-        print(text)
+        #print(text)
     new_payment_batch_text += '\n'
 
     # Write to DB
     for payment in new_payment_batch.payments:
         try:
             mysql_handler.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
-        except:
+        except Exception as e:
             print("MySQL error")
+            print(e)
 
     payment_batches.append(new_payment_batch)
 
@@ -95,7 +97,7 @@ def set_amounts(block):
 
         from_account = payment[2]
         to_account = payment[3]
-        amount = round((payment[8] * block_reward * (1 - (account_fees[payment[3]] / 100)) - payment_fee), payment_prec)
+        amount = round((payment[8] * block_reward * (1 - (account_fees[payment[3]] / 100)) - payment_fee - payment_fee_to_pool), payment_prec)
         if amount > payment_fee:
             mysql_handler.set_amount_for_payment(payment[1], payment[2], payment[3], amount)
             spent += amount + payment_fee
@@ -185,6 +187,7 @@ def do_payment_batch():
     threading.Timer(60,do_payment_batch).start()
 
 def payment_processor():
+    global current_block
     print("Starting payment processor")
     block_checked = []
     block_matured = []
@@ -194,10 +197,14 @@ def payment_processor():
         #block_checked neccessary to speed up. Multiple txs have the same block, enough to set once a block to checked
         if block[1] in block_checked:
             continue
+        block_checked.append(block[1])
         if wallet_json_rpc.check_block_pubkey(block[1]):
             mysql_handler.set_block_to_acked_by_wallet(block[1])
-            block_checked.append(block[1])
             set_amounts(block[1])
+        elif block[1] < current_block - orphan_age_limit:   # check if the block is orphan
+            mysql_handler.set_block_to_orphan(block[1])   # set to orphan in db
+            print("Block %d marked as orphan" % block[1])
+
 
     result = mysql_handler.get_unconfirmed_blocks()
     for block in result:
@@ -212,7 +219,14 @@ def payment_processor():
     result = mysql_handler.get_unpaid_payments()
     wallet_json_rpc.unlock_wallet()
     for row in result:
-        if wallet_json_rpc.send_payment(row[2], row[3], row[4], row[1]) == True:
+        try:
+            wallet_json_rpc.send_payment(row[2], row[3], row[4], row[1])
+        except wallet_json_rpc.WalletPubKeyError:
+            if row[1] < current_block - orphan_age_limit:     # block is orphan
+                mysql_handler.set_block_to_orphan(row[1])
+        except Exception:
+            pass
+        else:
             mysql_handler.set_payment_to_paid(row[1], row[2], row[3])
 
     threading.Timer(60, payment_processor).start()

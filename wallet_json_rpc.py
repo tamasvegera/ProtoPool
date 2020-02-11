@@ -1,4 +1,5 @@
 import requests, json, accountancy
+from params import *
 
 maturation_time = 10        # in blocks
 wallet_password = "your_password"
@@ -10,6 +11,15 @@ wallet_server_ip_port = wallet_server_ip + ':' + str(wallet_server_port)
 pool_public_key = 0
 
 wallet_ok = False
+
+class WalletPubKeyError(Exception):
+    pass
+
+class WalletInvalidOperationError(Exception):
+    pass
+
+class WalletNotReadyError(Exception):
+    pass
 
 def get_block_reward(block):
     msg = {"jsonrpc": "2.0", "method": "getblock", "params": {"block": block}, "id": 123}
@@ -48,7 +58,6 @@ def check_block_pubkey(block):
     if enc_pubkey == pool_public_key:
         return True
     else:
-        print("block pubkey != pool pubkey")
         return False
 
 def get_last_block():
@@ -85,21 +94,25 @@ def lock_wallet():
 
 def send_payment(from_account, to_account, amount, block):
     if wallet_ok == False:
-        return False
-#    if amount > 110:
-#        print("SERIOUS ERROR! Payment amount higher, than 110!: " + str(amount))
-#        return False
-    payload = "pool share, block: " + str(block)
+        raise WalletNotReadyError
+
+#TODO uncomment payload
+    payload = ""#""pool share, block: " + str(block)
     payload = payload.encode('utf-8')
     msg = {"jsonrpc":"2.0","method":"sendto","params":{"sender":from_account,"target":to_account,"amount":amount,"fee":accountancy.payment_fee,"payload":payload.hex(),"payload_method":"none","pwd":wallet_password},"id":123}
     response_raw = requests.post(wallet_server_ip_port, json=msg)
     response = json.loads(response_raw.text)
+
     if "result" in response:
         print("Payment sent from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount))
-        return True
     else:
-        print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount) + "  " + response["error"]["message"])
-        return response["error"]
+        #print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount) + "  " + response["error"]["message"])
+        if response["error"]["code"] == 1004:
+            raise WalletInvalidOperationError
+        elif response["error"]["code"] == 1005:       # invalid public key -> orphan
+            raise WalletPubKeyError
+        else:
+            raise Exception
 
 def wallet_has_nodes():
     global wallet_ok
@@ -124,12 +137,10 @@ def wait_for_wallet_start():
             data = {"jsonrpc": "2.0", "method": "nodestatus", "params": {}, "id": 123}
             response_raw = requests.post(wallet_server_ip_port, json=data)
             response = json.loads(response_raw.text)
-            if response["result"]["ready"] == False and response["result"]["ready_s"] == "Alone in the world...":
-                wallet_ok = False
-                return False
-            elif response["result"]["ready"] == True:
-                wallet_ok = True
-                return True
+            if "status_s" in response["result"]:
+                if response["result"]["status_s"] == "Running":
+                    return True
+            return False
     except:
         wallet_ok = False
         return False
@@ -146,3 +157,9 @@ def get_public_key():
     except:
         wallet_ok = False
         return False
+
+def get_account_balance(account):
+    data = {"jsonrpc": "2.0", "method": "getaccount", "params":{"account":account}, "id": 123}
+    response_raw = requests.post(wallet_server_ip_port, json=data)
+    response = json.loads(response_raw.text)
+    return response["result"]["balance"]

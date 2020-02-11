@@ -17,7 +17,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT timestamp, reward_block, from_account, amount, paid FROM protopoolpayments_v3 WHERE to_account = $account ORDER BY reward_block DESC";
+$sql = "SELECT timestamp, reward_block, from_account, amount, paid, orphan FROM protopoolpayments_v3 WHERE to_account = $account ORDER BY reward_block DESC";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -51,6 +51,7 @@ if ($result->num_rows > 0) {
 		$row['from_account'] . '</td><td align="center">' .
 		$row['amount'] . '</td><td align="center">';
 		if ($row['paid'] == 1){ $paid = "Yes"; }
+		elseif ($row['orphan'] == 1) { $paid = "orphan";}
 		else { $paid = "No";}
 		echo $paid . '</td></tr">';
     }

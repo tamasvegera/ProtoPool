@@ -61,7 +61,7 @@ def connection_handler(conn, addr, difficulty):
         try:
             buf = new_miner.conn.recv(4096)
         except:
-            print("Miner from " + new_miner.addr[0] + ':' + str(new_miner.addr[1]) + ' disconnected.')
+            print("Miner disconnected from " + new_miner.addr[0] + ':' + str(new_miner.addr[1]))
             try:
                 close_miner_conn(new_miner)
             except:

@@ -16,8 +16,8 @@ retry = 5
 
 def add_payment_to_DB(reward_block, from_account, to_account, share_rate):
     global payments_table_name, mysql_busy
-    sql = "INSERT INTO " + payments_table_name + " (timestamp, reward_block, from_account, to_account, amount, paid, acked_by_wallet, confirmed, share_rate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    payment = (int(time.time()), reward_block, from_account, to_account, 0, False, False, False, share_rate)
+    sql = "INSERT INTO " + payments_table_name + " (timestamp, reward_block, from_account, to_account, amount, paid, acked_by_wallet, confirmed, share_rate, orphan) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    payment = (int(time.time()), reward_block, from_account, to_account, 0, False, False, False, share_rate, False)
     while mysql_busy == True:
         pass
     mysql_busy = True
@@ -71,6 +71,17 @@ def set_block_confirmed(reward_block):
     poolDB.commit()
     mysql_busy = False
 
+def set_block_to_orphan(block):
+    global mysql_busy
+    sql = "UPDATE " + payments_table_name + " SET orphan = TRUE WHERE reward_block = %s"
+
+    while mysql_busy == True:
+        pass
+    mysql_busy = True
+    poolCursor.execute(sql, (block,))
+    poolDB.commit()
+    mysql_busy = False
+
 def delete_zero_txs():
     global mysql_busy
     sql = "DELETE FROM " + payments_table_name + " WHERE amount = 0  AND share_rate=0 AND acked_by_wallet = TRUE"
@@ -106,7 +117,7 @@ def get_payments_of_block(block):
 def get_unacked_blocks():
     global mysql_busy
 
-    sql = "SELECT * FROM " + payments_table_name + " WHERE acked_by_wallet = FALSE"
+    sql = "SELECT * FROM " + payments_table_name + " WHERE acked_by_wallet = FALSE AND orphan = FALSE"
     while mysql_busy == True:
         pass
     mysql_busy = True
@@ -117,7 +128,7 @@ def get_unacked_blocks():
 def get_unconfirmed_blocks():
     global mysql_busy
 
-    sql = "SELECT * FROM " + payments_table_name + " WHERE acked_by_wallet = TRUE AND confirmed = FALSE"
+    sql = "SELECT * FROM " + payments_table_name + " WHERE acked_by_wallet = TRUE AND confirmed = FALSE AND orphan = FALSE"
     while mysql_busy == True:
         pass
     mysql_busy = True
@@ -128,7 +139,7 @@ def get_unconfirmed_blocks():
 def get_unpaid_payments():
     global mysql_busy
 
-    sql = "SELECT * FROM " + payments_table_name + " WHERE paid = FALSE AND acked_by_wallet = TRUE AND confirmed = TRUE"
+    sql = "SELECT * FROM " + payments_table_name + " WHERE paid = FALSE AND acked_by_wallet = TRUE AND confirmed = TRUE AND orphan = FALSE"
     while mysql_busy == True:
         pass
     mysql_busy = True
