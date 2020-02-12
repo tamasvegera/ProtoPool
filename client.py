@@ -1,5 +1,6 @@
 import socket, threading, ast, json
 import server, accountancy, wallet_json_rpc, mysql_handler
+from log_module import *
 
 last_miner_notify_flag = True
 last_miner_notify = ["", "", ""]
@@ -26,28 +27,35 @@ def client_handler():
             cli.connect((host, port))
             wallet_ok = True
             print("Client to wallet started")
-        except:
+        except Exception as e:
+            logger.error("WALLET client to wallet cannot be started.")
             print("Client to wallet cannot be started.")
+            print(e)
             wallet_ok = False
 
         while wallet_ok == True:
             try:
                 data = cli.recv(buffer)
-            except:
+            except Exception as e:
+                logger.error("WALLET receiver buffer error, error: " + str(e) + "data: " + data.decode("utf-8"))
                 wallet_ok = False
                 cli.close()
                 break
+
             if not data:
+                logger.error("WALLET closed connection")
                 cli.close()
                 break
             data_str = data.decode("utf-8")
             data_str = data_str.replace('null', '"null"')
             msgs = data_str.split('\n')
             for msg in msgs:
-                try:
-                    msg = json.loads(msg)
-                except:
-                    continue
+                if msg:
+                    try:
+                        msg = json.loads(msg)
+                    except Exception as e:
+                        logger.error("Wallet message JSON parsing error, message: ", json.dumps(msg), " error: ", e)
+                        continue
                 if "method" in msg:
                     if msg["method"] == "miner-notify":
                         last_miner_notify_cnt += 1
@@ -63,6 +71,7 @@ def client_handler():
                     if "pow" in msg["result"]:
                         print(
                             "NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE")
+                        accountancy.new_block_accountancy()
                         #mysql_handler.set_block_to_acked_by_wallet(msg["result"]["block"])
                         #new block accountancy moved
                         #accountancy.new_block_accountancy()
@@ -80,3 +89,5 @@ def mining_submit_handler(submit_msg, extranonce):
 
     if wallet_json_rpc.wallet_ok == True:
         cli.sendall(msg.encode())
+        print("Block pow sent to wallet:")
+        print(msg.encode())

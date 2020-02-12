@@ -1,11 +1,12 @@
 import client, server, accountancy, mining, wallet_json_rpc
-import threading, os, subprocess, requests, json, time, psutil, sys
+import threading, os, subprocess, requests, json, time, psutil, sys, log_module
 from params import *
+from log_module import *
 
 #TODO
 # - when miner connected before first mining-notify comes from wallet, it throws an error from stratum-47
 # - rounding errors in balance calculation, example: from_account=1084190
-#
+# - wallet connection crashes sometimes after mining-submit
 #
 #
 class WalletNotFoundError(Exception):
@@ -30,6 +31,7 @@ def kill_wallet():
 
 def wallet_watchdog():
     if wallet_json_rpc.wallet_has_nodes() == False:
+        logger.info("WALLET restarted")
         kill_wallet()
         time.sleep(10)
         print("Wallet is restarted.")
@@ -40,7 +42,8 @@ def wallet_notify_watchdog():
     if client.last_miner_notify_flag == False:
         try:
             client.cli.close()
-        except:
+        except Exception as e:
+            logger.error("WALLET notify watchdog error: " + str(e))
             pass
     client.last_miner_notify_flag = False
     threading.Timer(client.last_miner_notify_timeout, wallet_notify_watchdog, []).start()

@@ -1,6 +1,7 @@
 import requests, json, threading, time
 import mining, wallet_json_rpc, mysql_handler
 from params import *
+from log_module import *
 
 payment_batches = []
 
@@ -79,6 +80,7 @@ def calc_share_rates(last_block, from_account):
         try:
             mysql_handler.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
         except Exception as e:
+            logger.error("MySQL error at calc_share_rates: " + str(e))
             print("MySQL error")
             print(e)
 
@@ -140,7 +142,8 @@ def calc_payments(last_block, last_reward, from_account):
     for payment in new_payment_batch.payments:
         try:
             mysql_handler.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
-        except:
+        except Exception as e:
+            logger.error("MySQL error at calc_payments: " + str(e))
             print("MySQL error")
 
     payment_batches.append(new_payment_batch)

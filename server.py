@@ -131,7 +131,6 @@ def connection_handler(conn, addr, difficulty):
                             #print("Share rejected from: " + new_miner.addr[0])
                         if block_pow <= target_pow:
                             print("Block found with this share from: " + new_miner.addr[0])
-                            accountancy.new_block_accountancy()
                             client.mining_submit_handler(msg, extranonce)
                     last_payload = payload
                     last_timestamp = msg["params"][3]

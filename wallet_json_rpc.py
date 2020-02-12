@@ -1,5 +1,6 @@
 import requests, json, accountancy
 from params import *
+from log_module import *
 
 maturation_time = 10        # in blocks
 wallet_password = "your_password"
@@ -95,7 +96,6 @@ def lock_wallet():
 def send_payment(from_account, to_account, amount, block):
     if wallet_ok == False:
         raise WalletNotReadyError
-
 #TODO uncomment payload
     payload = ""#""pool share, block: " + str(block)
     payload = payload.encode('utf-8')
@@ -103,8 +103,10 @@ def send_payment(from_account, to_account, amount, block):
     response_raw = requests.post(wallet_server_ip_port, json=msg)
     response = json.loads(response_raw.text)
 
+    logger.info("PAYMENT to wallet: " + json.dumps(msg))
+    logger.info("PAYMENT from wallet: " + response_raw.text)
     if "result" in response:
-        print("Payment sent from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount))
+        logger.info("Payment sent from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount))
     else:
         #print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount) + "  " + response["error"]["message"])
         if response["error"]["code"] == 1004:
@@ -126,7 +128,8 @@ def wallet_has_nodes():
         else:
             wallet_ok = True
             return True
-    except:
+    except Exception as e:
+        logger.error("Wallet has nodes error: " + str(e))
         wallet_ok = False
         return False
 
@@ -141,7 +144,8 @@ def wait_for_wallet_start():
                 if response["result"]["status_s"] == "Running":
                     return True
             return False
-    except:
+    except Exception as e:
+        logger.error("Wait for wallet start error: " + str(e))
         wallet_ok = False
         return False
 
@@ -154,7 +158,8 @@ def get_public_key():
         for key in response["result"]:
             if key["name"] == wallet_name:
                 pool_public_key = key["enc_pubkey"]
-    except:
+    except Exception as e:
+        logger.error("Get public key error: " + str(e))
         wallet_ok = False
         return False
 
