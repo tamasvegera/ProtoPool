@@ -7,16 +7,16 @@ main_db_file = "./mcc_pool_payments.db"
 class Database:
     def __init__(self, db_file):
         sql_create_payments_table = """ CREATE TABLE IF NOT EXISTS payments (
-                                        timestamp int NOT NULL,
-                                        reward_block int NOT NULL,
-                                        from_account int NOT NULL,
-                                        to_account int NOT NULL,
-                                        amount float NOT NULL,
-                                        paid tinyint NOT NULL,
-                                        acked_by_wallet tinyint NOT NULL,
-                                        confirmed tinyint NOT NULL,
-                                        share_rate float NOT NULL,
-                                        orphan tinyint NOT NULL
+                                        timestamp INTEGER NOT NULL,
+                                        reward_block INTEGER NOT NULL,
+                                        from_account INTEGER NOT NULL,
+                                        to_account INTEGER NOT NULL,
+                                        amount REAL NOT NULL,
+                                        paid INTEGER NOT NULL,
+                                        acked_by_wallet INTEGER NOT NULL,
+                                        confirmed INTEGER NOT NULL,
+                                        share_rate REAL NOT NULL,
+                                        orphan INTEGER NOT NULL
                                     ); """
 
         self.conn = sqlite3.connect(db_file, check_same_thread=False)
@@ -42,7 +42,7 @@ class Database:
 
     def add_payment_to_DB(self, reward_block, from_account, to_account, share_rate):
         sql = "INSERT INTO payments (timestamp, reward_block, from_account, to_account, amount, paid, acked_by_wallet, confirmed, share_rate, orphan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        payment = (int(time.time()), reward_block, from_account, to_account, 0, False, False, False, share_rate, False)
+        payment = (int(time.time()), reward_block, from_account, to_account, 0, 0, 0, 0, share_rate, 0)
 
         self.wait_and_lock_busy()
 
@@ -100,7 +100,7 @@ class Database:
         self.unlock_busy()
 
     def set_block_confirmed(self, reward_block):
-        sql = "UPDATE payments SET confirmed = TRUE WHERE reward_block = %s"
+        sql = "UPDATE payments SET confirmed = TRUE WHERE reward_block = ?"
 
         self.wait_and_lock_busy()
 
@@ -142,7 +142,7 @@ class Database:
         self.unlock_busy()
 
     def remove_payment_from_DB(self, from_account, to_account):
-        sql = "DELETE FROM payments WHERE from_account = %s AND to_account = ?"
+        sql = "DELETE FROM payments WHERE from_account = ? AND to_account = ?"
         payment = (from_account, to_account)
 
         self.wait_and_lock_busy()
@@ -171,7 +171,7 @@ class Database:
         return retval
 
     def get_unacked_blocks(self):
-        sql = "SELECT * FROM payments WHERE acked_by_wallet = FALSE AND orphan = FALSE"
+        sql = "SELECT * FROM payments WHERE acked_by_wallet = 0 AND orphan = 0"
 
         self.wait_and_lock_busy()
 
@@ -185,7 +185,7 @@ class Database:
         return retval
 
     def get_unconfirmed_blocks(self):
-        sql = "SELECT * FROM payments WHERE acked_by_wallet = TRUE AND confirmed = FALSE AND orphan = FALSE"
+        sql = "SELECT * FROM payments WHERE acked_by_wallet = TRUE AND confirmed = 0 AND orphan = 0"
 
         self.wait_and_lock_busy()
 
@@ -198,7 +198,7 @@ class Database:
         return retval
 
     def get_unpaid_payments(self):
-        sql = "SELECT * FROM payments WHERE paid = FALSE AND acked_by_wallet = TRUE AND confirmed = TRUE AND orphan = FALSE"
+        sql = "SELECT * FROM payments WHERE paid = 0 AND acked_by_wallet = TRUE AND confirmed = TRUE AND orphan = 0"
 
         self.wait_and_lock_busy()
 
