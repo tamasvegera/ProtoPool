@@ -1,5 +1,5 @@
 import client, server, accountancy, mining, wallet_json_rpc
-import threading
+import threading, time
 from params import *
 from log_module import *
 
@@ -28,6 +28,7 @@ while True:
     result = wallet_json_rpc.wait_for_wallet_start()
     if result == True:
         break
+    time.sleep(5)
 
 wallet_notify_watchdog()
 if wallet_json_rpc.get_public_key() == "nokey":

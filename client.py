@@ -85,11 +85,11 @@ def mining_submit_handler(submit_msg, extranonce):
     nonce = str(int(submit_msg["params"][4], 16))
     payload = extranonce + submit_msg["params"][2]
     msg = '{"id": 10, "method": "miner-submit", "params": [{"payload": "' + payload + '","timestamp":' + timestamp_dec + ',"nonce":' + nonce + '}]}\n'
-    #print("To wallet: " + msg)
+    print("Pow to wallet: " + msg)
 
     #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
     if wallet_json_rpc.wallet_ok == True:
-        cli.sendall(msg.encode())
+        print(cli.sendall(msg.encode()))
         print("Block pow sent to wallet:")
         print(msg.encode())
