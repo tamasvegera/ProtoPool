@@ -71,7 +71,7 @@ class Database:
         self.unlock_busy()
 
     def set_payment_to_paid(self, reward_block, from_account, to_account):
-        sql = "UPDATE payments SET paid = TRUE WHERE reward_block = ? AND from_account = ? AND to_account = ?"
+        sql = "UPDATE payments SET paid = 1 WHERE reward_block = ? AND from_account = ? AND to_account = ?"
         payment = (reward_block, from_account, to_account)
 
         self.wait_and_lock_busy()
@@ -86,7 +86,7 @@ class Database:
         self.unlock_busy()
 
     def set_block_to_acked_by_wallet(self, reward_block):
-        sql = "UPDATE payments SET acked_by_wallet = TRUE WHERE reward_block = ?"
+        sql = "UPDATE payments SET acked_by_wallet = 1 WHERE reward_block = ?"
 
         self.wait_and_lock_busy()
 
@@ -100,7 +100,7 @@ class Database:
         self.unlock_busy()
 
     def set_block_confirmed(self, reward_block):
-        sql = "UPDATE payments SET confirmed = TRUE WHERE reward_block = ?"
+        sql = "UPDATE payments SET confirmed = 1 WHERE reward_block = ?"
 
         self.wait_and_lock_busy()
 
@@ -114,7 +114,7 @@ class Database:
         self.unlock_busy()
 
     def set_block_to_orphan(self, block):
-        sql = "UPDATE payments SET orphan = TRUE WHERE reward_block = ?"
+        sql = "UPDATE payments SET orphan = 1 WHERE reward_block = ?"
 
         self.wait_and_lock_busy()
 
@@ -128,7 +128,7 @@ class Database:
         self.unlock_busy()
 
     def delete_zero_txs(self):
-        sql = "DELETE FROM payments WHERE amount = 0  AND share_rate=0 AND acked_by_wallet = TRUE"
+        sql = "DELETE FROM payments WHERE amount = 0  AND share_rate=0 AND acked_by_wallet = 1"
 
         self.wait_and_lock_busy()
 
@@ -185,7 +185,7 @@ class Database:
         return retval
 
     def get_unconfirmed_blocks(self):
-        sql = "SELECT * FROM payments WHERE acked_by_wallet = TRUE AND confirmed = 0 AND orphan = 0"
+        sql = "SELECT * FROM payments WHERE acked_by_wallet = 1 AND confirmed = 0 AND orphan = 0"
 
         self.wait_and_lock_busy()
 
@@ -198,7 +198,7 @@ class Database:
         return retval
 
     def get_unpaid_payments(self):
-        sql = "SELECT * FROM payments WHERE paid = 0 AND acked_by_wallet = TRUE AND confirmed = TRUE AND orphan = 0"
+        sql = "SELECT * FROM payments WHERE paid = 0 AND acked_by_wallet = 1 AND confirmed = 1 AND orphan = 0"
 
         self.wait_and_lock_busy()
 
