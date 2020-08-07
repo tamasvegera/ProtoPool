@@ -4,7 +4,7 @@ from log_module import *
 
 maturation_time = 10        # in blocks
 wallet_password = "mtwabp!microcoin"
-wallet_name = "protopool"
+wallet_name = "MCC_pool"
 wallet_server_ip = 'http://localhost'
 wallet_server_port = 4003
 wallet_server_ip_port = wallet_server_ip + ':' + str(wallet_server_port)
@@ -83,9 +83,7 @@ def unlock_wallet():
     msg = {"jsonrpc": "2.0", "method": "unlock", "params": {"pwd": wallet_password}, "id": 123}
     response_raw = requests.post(wallet_server_ip_port, json=msg)
     response = json.loads(response_raw.text)
-    if response["result"] == True:
-        print("Wallet unlocked")
-    else:
+    if response["result"] == False:
         print("Wallet can't be unlocked.")
 
 def lock_wallet():
@@ -144,6 +142,7 @@ def wait_for_wallet_start():
                     return True
             return False
     except Exception as e:
+        print("Wallet start error. Check if the wallet is running!")
         logger.error("Wait for wallet start error: " + str(e))
         wallet_ok = False
         return False
@@ -157,9 +156,25 @@ def get_public_key():
         for key in response["result"]:
             if key["name"] == wallet_name:
                 pool_public_key = key["enc_pubkey"]
+                return True
+        return "nokey"
+
     except Exception as e:
         logger.error("Get public key error: " + str(e))
         wallet_ok = False
+        return False
+
+def add_main_pub_key():
+    global pool_public_key
+
+    try:
+        data = {"jsonrpc": "2.0", "method": "addnewkey","params":{"ec_nid":714,"name":wallet_name},"id":123}
+        response_raw = requests.post(wallet_server_ip_port, json=data)
+        response = json.loads(response_raw.text)
+        pool_public_key = response["result"]["enc_pubkey"]
+        return True
+    except:
+        logger.error("Add new public key error: " + str(e))
         return False
 
 def get_account_balance(account):

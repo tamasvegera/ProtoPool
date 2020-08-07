@@ -195,41 +195,41 @@ def payment_processor():
     block_checked = []
     block_matured = []
 
-    result = sqlite_handler.get_unacked_blocks()
+    result = sqlite_handler.db.get_unacked_blocks()
     for block in result:
         #block_checked neccessary to speed up. Multiple txs have the same block, enough to set once a block to checked
         if block[1] in block_checked:
             continue
         block_checked.append(block[1])
         if wallet_json_rpc.check_block_pubkey(block[1]):
-            sqlite_handler.set_block_to_acked_by_wallet(block[1])
+            sqlite_handler.db.set_block_to_acked_by_wallet(block[1])
             set_amounts(block[1])
         elif block[1] < current_block - orphan_age_limit:   # check if the block is orphan
-            sqlite_handler.set_block_to_orphan(block[1])   # set to orphan in db
+            sqlite_handler.db.set_block_to_orphan(block[1])   # set to orphan in db
             print("Block %d marked as orphan" % block[1])
 
 
-    result = sqlite_handler.get_unconfirmed_blocks()
+    result = sqlite_handler.db.get_unconfirmed_blocks()
     for block in result:
         if block[1] in block_matured:
             continue
         if wallet_json_rpc.is_block_matured(block[1]):
-            sqlite_handler.set_block_confirmed(block[1])
+            sqlite_handler.db.set_block_confirmed(block[1])
             block_matured.append(block[1])
 
-    sqlite_handler.delete_zero_txs()
+    sqlite_handler.db.delete_zero_txs()
 
-    result = sqlite_handler.get_unpaid_payments()
+    result = sqlite_handler.db.get_unpaid_payments()
     wallet_json_rpc.unlock_wallet()
     for row in result:
         try:
             wallet_json_rpc.send_payment(row[2], row[3], row[4], row[1])
         except wallet_json_rpc.WalletPubKeyError:
             if row[1] < current_block - orphan_age_limit:     # block is orphan
-                sqlite_handler.set_block_to_orphan(row[1])
+                sqlite_handler.db.set_block_to_orphan(row[1])
         except Exception:
             pass
         else:
-            sqlite_handler.set_payment_to_paid(row[1], row[2], row[3])
+            sqlite_handler.db.set_payment_to_paid(row[1], row[2], row[3])
 
     threading.Timer(60, payment_processor).start()
