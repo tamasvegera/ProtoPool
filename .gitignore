@@ -6,3 +6,5 @@ _main.spec
 payments.txt
 test.py
 protopool todo.txt
+protopool.log
+venv/

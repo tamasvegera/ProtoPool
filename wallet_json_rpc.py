@@ -3,7 +3,7 @@ from params import *
 from log_module import *
 
 maturation_time = 10        # in blocks
-wallet_password = "your_password"
+wallet_password = "mtwabp!microcoin"
 wallet_name = "protopool"
 wallet_server_ip = 'http://localhost'
 wallet_server_port = 4003
@@ -96,8 +96,7 @@ def lock_wallet():
 def send_payment(from_account, to_account, amount, block):
     if wallet_ok == False:
         raise WalletNotReadyError
-#TODO uncomment payload
-    payload = ""#""pool share, block: " + str(block)
+    payload = "pool share, block: " + str(block)
     payload = payload.encode('utf-8')
     msg = {"jsonrpc":"2.0","method":"sendto","params":{"sender":from_account,"target":to_account,"amount":amount,"fee":accountancy.payment_fee,"payload":payload.hex(),"payload_method":"none","pwd":wallet_password},"id":123}
     response_raw = requests.post(wallet_server_ip_port, json=msg)

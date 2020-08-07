@@ -1,3 +1,4 @@
+###### DEPRECATED ########
 import mysql.connector, time
 
 db_name = "ProtoPool"

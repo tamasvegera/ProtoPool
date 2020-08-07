@@ -1,5 +1,7 @@
-import client, mining
+import client
 from log_module import *
+
+import server
 
 extranonce2_size = 8
 job_id = 0
@@ -14,6 +16,7 @@ def send_tcp_msg(miner, msg):
     except Exception as e:
         logger.error("Sending failed to " + miner.addr[0] + ':' + str(miner.addr[1]) + "  error: " + str(e))
         print("Sending failed to " + miner.addr[0] + ':' + str(miner.addr[1]))
+        server.close_miner_conn(miner)
 
 def send_stratum_msg(miner, id, method, params):
 

@@ -1,5 +1,5 @@
 import socket, threading, ast, json
-import server, accountancy, wallet_json_rpc, mysql_handler
+import server, accountancy, wallet_json_rpc
 from log_module import *
 
 last_miner_notify_flag = True
@@ -54,10 +54,12 @@ def client_handler():
                     try:
                         msg = json.loads(msg)
                     except Exception as e:
-                        logger.error("Wallet message JSON parsing error, message: ", json.dumps(msg), " error: ", e)
+                        #logger.error("Wallet message JSON parsing error: ", e)
+                        print("Wallet message JSON parsing error: ", e)
                         continue
                 if "method" in msg:
                     if msg["method"] == "miner-notify":
+                        print(msg)
                         last_miner_notify_cnt += 1
                         if last_miner_notify_cnt == 2:
                             last_miner_notify_buf_full = True
