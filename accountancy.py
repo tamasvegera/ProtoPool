@@ -37,7 +37,7 @@ def new_block_accountancy():
 #    if last_account["account"] == 0:
 #        print("Last account can't be found!!!!!!!!!!!! ERROR")
 
-    if not sqlite_handler.is_block_in_db_already(current_block):
+    if not sqlite_handler.db.is_block_in_db_already(current_block):
         calc_shares()
         calc_share_rates(current_block, current_block*5)
 #    calc_payments(current_block, last_account["balance"], last_account["account"])
@@ -78,7 +78,7 @@ def calc_share_rates(last_block, from_account):
     # Write to DB
     for payment in new_payment_batch.payments:
         try:
-            sqlite_handler.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
+            sqlite_handler.db.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
         except Exception as e:
             logger.error("SQlite error at calc_share_rates: " + str(e))
             print("SQlite error")
@@ -88,7 +88,7 @@ def calc_share_rates(last_block, from_account):
 
 def set_amounts(block):
     block_reward = wallet_json_rpc.get_block_reward(block)
-    payments = sqlite_handler.get_payments_of_block(block)
+    payments = sqlite_handler.db.get_payments_of_block(block)
     spent = 0
     from_account = 0
     for payment in payments:
@@ -101,16 +101,16 @@ def set_amounts(block):
         to_account = payment[3]
         amount = round((payment[8] * block_reward * (1 - (account_fees[payment[3]] / 100)) - payment_fee - payment_fee_to_pool), payment_prec)
         if amount > payment_fee:
-            sqlite_handler.set_amount_for_payment(payment[1], payment[2], payment[3], amount)
+            sqlite_handler.db.set_amount_for_payment(payment[1], payment[2], payment[3], amount)
             spent += amount + payment_fee
         else:
-            sqlite_handler.remove_payment_from_DB(from_account, to_account)
+            sqlite_handler.db.remove_payment_from_DB(from_account, to_account)
 
     amount = round(block_reward - spent - payment_fee, payment_prec)
     if amount > payment_fee:
-        sqlite_handler.set_amount_for_payment(block, from_account, pool_account, amount)
+        sqlite_handler.db.set_amount_for_payment(block, from_account, pool_account, amount)
     else:
-        sqlite_handler.remove_payment_from_DB(from_account, pool_account)
+        sqlite_handler.db.remove_payment_from_DB(from_account, pool_account)
 
 #not used
 def calc_payments(last_block, last_reward, from_account):
@@ -141,7 +141,7 @@ def calc_payments(last_block, last_reward, from_account):
     # Write to DB
     for payment in new_payment_batch.payments:
         try:
-            sqlite_handler.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
+            sqlite_handler.db.add_payment_to_DB(last_block, from_account, payment, new_payment_batch.payments[payment])
         except Exception as e:
             logger.error("SQlite error at calc_payments: " + str(e))
             print("SQlite error")
@@ -176,7 +176,7 @@ def do_payment_batch():
                             break
                 else:
                     try:
-                        sqlite_handler.set_payment_to_paid(payment_batch.block, payment_batch.from_account, account)
+                        sqlite_handler.db.set_payment_to_paid(payment_batch.block, payment_batch.from_account, account)
                     except:
                         print("SQlite error")
             #TODO write to file
@@ -191,7 +191,7 @@ def do_payment_batch():
 
 def payment_processor():
     global current_block
-    print("Starting payment processor")
+    print("\nStarting payment processor")
     block_checked = []
     block_matured = []
 
@@ -201,7 +201,13 @@ def payment_processor():
         if block[1] in block_checked:
             continue
         block_checked.append(block[1])
-        if wallet_json_rpc.check_block_pubkey(block[1]):
+
+        try:
+            retval = wallet_json_rpc.check_block_pubkey(block[1])
+        except wallet_json_rpc.WalletCommError:
+            return False
+
+        if retval:
             sqlite_handler.db.set_block_to_acked_by_wallet(block[1])
             set_amounts(block[1])
         elif block[1] < current_block - orphan_age_limit:   # check if the block is orphan
@@ -213,23 +219,39 @@ def payment_processor():
     for block in result:
         if block[1] in block_matured:
             continue
-        if wallet_json_rpc.is_block_matured(block[1]):
+
+        try:
+            retval = wallet_json_rpc.is_block_matured(block[1])
+        except wallet_json_rpc.WalletCommError:
+            return False
+
+        if retval:
             sqlite_handler.db.set_block_confirmed(block[1])
             block_matured.append(block[1])
 
     sqlite_handler.db.delete_zero_txs()
 
     result = sqlite_handler.db.get_unpaid_payments()
-    wallet_json_rpc.unlock_wallet()
+    try:
+        wallet_json_rpc.unlock_wallet()
+    except wallet_json_rpc.WalletCommError:
+        return False
+
     for row in result:
         try:
             wallet_json_rpc.send_payment(row[2], row[3], row[4], row[1])
         except wallet_json_rpc.WalletPubKeyError:
             if row[1] < current_block - orphan_age_limit:     # block is orphan
                 sqlite_handler.db.set_block_to_orphan(row[1])
-        except Exception:
-            pass
+        except wallet_json_rpc.WalletCommError:
+            return False
         else:
             sqlite_handler.db.set_payment_to_paid(row[1], row[2], row[3])
 
-    threading.Timer(60, payment_processor).start()
+    return True
+
+def start_payment_processor():
+    if not payment_processor():
+        print("Payment processor error. Is wallet running?")
+
+    threading.Timer(60, start_payment_processor).start()

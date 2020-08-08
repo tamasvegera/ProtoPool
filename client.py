@@ -59,7 +59,7 @@ def client_handler():
                         continue
                 if "method" in msg:
                     if msg["method"] == "miner-notify":
-                        print(msg)
+                        #print(msg)
                         last_miner_notify_cnt += 1
                         if last_miner_notify_cnt == 2:
                             last_miner_notify_buf_full = True
@@ -70,6 +70,7 @@ def client_handler():
                         last_miner_notify_flag = True
 
                 if "result" in msg:
+                    print(msg)
                     if "pow" in msg["result"]:
                         print(
                             "NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE")
@@ -80,13 +81,13 @@ def client_handler():
 
 
 def mining_submit_handler(submit_msg, extranonce):
-    global last_miner_notify, last_miner_notify_cnt
+    global last_miner_notify, last_miner_notify_cnt, cli
+
     timestamp_dec = str(int(submit_msg["params"][3], 16))
     nonce = str(int(submit_msg["params"][4], 16))
     payload = extranonce + submit_msg["params"][2]
     msg = '{"id": 10, "method": "miner-submit", "params": [{"payload": "' + payload + '","timestamp":' + timestamp_dec + ',"nonce":' + nonce + '}]}\n'
-    print("Pow to wallet: " + msg)
-
+    #print("Pow to wallet: " + str(msg))
     #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
     if wallet_json_rpc.wallet_ok == True:

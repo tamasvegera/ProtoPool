@@ -31,8 +31,7 @@ while True:
     time.sleep(5)
 
 wallet_notify_watchdog()
-if wallet_json_rpc.get_public_key() == "nokey":
-    wallet_json_rpc.add_main_pub_key()
+wallet_json_rpc.get_public_key()
 
 thread_client = threading.Thread(target=client.client_handler)
 thread_client.start()
@@ -43,5 +42,5 @@ server.start_diff_servers()
 #thread_mining_notify.start()
 
 # TODO uncomment line below!
-accountancy.payment_processor()
+accountancy.start_payment_processor()
 mining.print_stat()

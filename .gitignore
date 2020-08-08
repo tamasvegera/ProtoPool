@@ -1,3 +1,4 @@
+mcc_pool_payments.db
 build/
 dist/
 __pycache__/
@@ -8,4 +9,3 @@ test.py
 protopool todo.txt
 protopool.log
 venv/
-mcc_pool_payments.db
