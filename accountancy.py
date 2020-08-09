@@ -4,15 +4,7 @@ from params import *
 from log_module import *
 
 payment_batches = []
-
-payment_prec = 4
-pool_fee = 0
-pool_account = 308613
-payment_fee = 0.0001
-
-pplns_interval = 3600   # in secs
 account_fees = {}
-
 current_block = 0
 
 class Payment_batch():

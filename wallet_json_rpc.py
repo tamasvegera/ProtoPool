@@ -2,16 +2,14 @@ import requests, json, accountancy
 from params import *
 from log_module import *
 
-maturation_time = 10        # in blocks
-wallet_password = "mtwabp!microcoin"
-wallet_name = "MCC_pool"
-wallet_server_ip = 'http://localhost'
-wallet_server_port = 4003
-wallet_server_ip_port = wallet_server_ip + ':' + str(wallet_server_port)
+wallet_jsonrpc_ip_port = wallet_jsonrpc_ip + ':' + str(wallet_jsonrpc_port)
 
 pool_public_key = 0
 
 wallet_ok = False
+
+# TODO wallet lock/unlock feature not ready yet
+wallet_password = ""
 
 class WalletCommError(Exception):
     pass
@@ -31,7 +29,7 @@ class WalletNotReadyError(Exception):
 def get_block_reward(block):
     msg = {"jsonrpc": "2.0", "method": "getblock", "params": {"block": block}, "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -45,7 +43,7 @@ def get_block_reward(block):
 def is_block_matured(block):
     msg = {"jsonrpc": "2.0", "method": "getblock", "params": {"block": block}, "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -65,7 +63,7 @@ def check_block_pubkey(block):
 
     msg = {"jsonrpc": "2.0", "method": "getblock", "params": {"block": block}, "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -84,7 +82,7 @@ def check_block_pubkey(block):
 def get_last_block():
     msg = {"jsonrpc": "2.0", "method": "getblockcount", "params": {"last": 1}, "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -95,14 +93,14 @@ def get_last_block():
 def get_last_account():
     data = {"jsonrpc": "2.0", "method": "getwalletaccountscount", "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=data)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
     except:
         raise WalletCommError
 
     response = json.loads(response_raw.text)
 
     msg = {"jsonrpc":"2.0","method":"getwalletaccounts","params":{"start":response["result"]-5},"id":123}
-    response_raw = requests.post(wallet_server_ip_port, json=msg)
+    response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     response = json.loads(response_raw.text)
     wallet = {"account": response["result"][0]["account"], "balance":response["result"][0]["balance"]}
     return wallet
@@ -110,7 +108,7 @@ def get_last_account():
 def unlock_wallet():
     msg = {"jsonrpc": "2.0", "method": "unlock", "params": {"pwd": wallet_password}, "id": 123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -120,7 +118,7 @@ def unlock_wallet():
 
 def lock_wallet():
     msg = {"jsonrpc": "2.0", "method": "lock", "id": 123}
-    response_raw = requests.post(wallet_server_ip_port, json=msg)
+    response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     response = json.loads(response_raw.text)
 
 def send_payment(from_account, to_account, amount, block):
@@ -130,7 +128,7 @@ def send_payment(from_account, to_account, amount, block):
     payload = payload.encode('utf-8')
     msg = {"jsonrpc":"2.0","method":"sendto","params":{"sender":from_account,"target":to_account,"amount":amount,"fee":accountancy.payment_fee,"payload":payload.hex(),"payload_method":"none","pwd":wallet_password},"id":123}
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=msg)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
     except:
         raise WalletCommError
 
@@ -154,7 +152,7 @@ def wallet_has_nodes():
     try:
         data = {"jsonrpc": "2.0", "method": "nodestatus", "params": {}, "id": 123}
         try:
-            response_raw = requests.post(wallet_server_ip_port, json=data)
+            response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
         except:
             raise WalletCommError
 
@@ -175,7 +173,7 @@ def wait_for_wallet_start():
     try:
         while True:
             data = {"jsonrpc": "2.0", "method": "nodestatus", "params": {}, "id": 123}
-            response_raw = requests.post(wallet_server_ip_port, json=data)
+            response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
             response = json.loads(response_raw.text)
             if "status_s" in response["result"]:
                 if response["result"]["status_s"] == "Running":
@@ -193,7 +191,7 @@ def get_public_key():
     try:
         data = {"jsonrpc": "2.0", "method": "getwalletpubkeys", "id": 123}
         try:
-            response_raw = requests.post(wallet_server_ip_port, json=data)
+            response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
         except:
             raise WalletCommError
 
@@ -210,7 +208,7 @@ def get_account_balance(account):
     data = {"jsonrpc": "2.0", "method": "getaccount", "params":{"account":account}, "id": 123}
 
     try:
-        response_raw = requests.post(wallet_server_ip_port, json=data)
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
     except:
         raise WalletCommError
 

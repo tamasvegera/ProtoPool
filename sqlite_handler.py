@@ -1,8 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 import time
-
-main_db_file = "./mcc_pool_payments.db"
+from params import *
 
 class Database:
     def __init__(self, db_file):

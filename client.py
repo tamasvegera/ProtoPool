@@ -1,6 +1,7 @@
 import socket, threading, ast, json
 import server, accountancy, wallet_json_rpc
 from log_module import *
+from params import *
 
 last_miner_notify_flag = True
 last_miner_notify = ["", "", ""]
@@ -9,8 +10,6 @@ last_miner_notify_buf_full = False
 
 last_miner_notify_timeout = 180
 
-host = 'localhost'
-port = 4009
 buffer = 4096
 
 cli = None
@@ -24,7 +23,7 @@ def client_handler():
         print("Client to wallet is starting...")
         try:
             cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            cli.connect((host, port))
+            cli.connect((wallet_mining_ip, wallet_mining_port))
             wallet_ok = True
             print("Client to wallet started")
         except Exception as e:
@@ -91,6 +90,6 @@ def mining_submit_handler(submit_msg, extranonce):
     #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
     if wallet_json_rpc.wallet_ok == True:
-        print(cli.sendall(msg.encode()))
+        cli.sendall(msg.encode())
         print("Block pow sent to wallet:")
         print(msg.encode())

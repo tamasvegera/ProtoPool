@@ -23,6 +23,8 @@ def wallet_notify_watchdog():
     threading.Timer(client.last_miner_notify_timeout, wallet_notify_watchdog, []).start()
 
 print("Starting MicroCoin mining pool by vegtamas. Pool version: " + str(version))
+logger.info("Starting MicroCoin mining pool by vegtamas. Pool version: " + str(version))
+
 while True:
     print("Waiting for wallet sync")
     result = wallet_json_rpc.wait_for_wallet_start()
@@ -41,6 +43,5 @@ server.start_diff_servers()
 #thread_mining_notify = threading.Thread(target=server.send_mining_notify_to_all)
 #thread_mining_notify.start()
 
-# TODO uncomment line below!
 accountancy.start_payment_processor()
 mining.print_stat()
