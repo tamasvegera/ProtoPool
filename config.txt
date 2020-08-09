@@ -1,0 +1,12 @@
+{
+	"pool_fee" 		: 0,
+	"pool_account"		: 308613,
+	"payment_fee_to_pool"	: 0.0001,
+	"payment_fee" 		: 0.0001,
+	"pplns_interval"	: 3600,
+	"wallet_jsonrpc_ip"	: "http://localhost",
+	"wallet_jsonrpc_port"	: 4003,
+	"wallet_mining_host"	: "localhost",
+	"wallet_mining_port"	: 4009,
+	"main_db_file" 		: "./mcc_pool_payments.db"
+}

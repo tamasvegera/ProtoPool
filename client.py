@@ -1,6 +1,7 @@
 import socket, threading, ast, json
-import server, accountancy, wallet_json_rpc, mysql_handler
+import server, accountancy, wallet_json_rpc
 from log_module import *
+from params import *
 
 last_miner_notify_flag = True
 last_miner_notify = ["", "", ""]
@@ -9,8 +10,6 @@ last_miner_notify_buf_full = False
 
 last_miner_notify_timeout = 180
 
-host = 'localhost'
-port = 4009
 buffer = 4096
 
 cli = None
@@ -24,7 +23,7 @@ def client_handler():
         print("Client to wallet is starting...")
         try:
             cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            cli.connect((host, port))
+            cli.connect((wallet_mining_ip, wallet_mining_port))
             wallet_ok = True
             print("Client to wallet started")
         except Exception as e:
@@ -54,10 +53,12 @@ def client_handler():
                     try:
                         msg = json.loads(msg)
                     except Exception as e:
-                        logger.error("Wallet message JSON parsing error, message: ", json.dumps(msg), " error: ", e)
+                        #logger.error("Wallet message JSON parsing error: ", e)
+                        print("Wallet message JSON parsing error: ", e)
                         continue
                 if "method" in msg:
                     if msg["method"] == "miner-notify":
+                        #print(msg)
                         last_miner_notify_cnt += 1
                         if last_miner_notify_cnt == 2:
                             last_miner_notify_buf_full = True
@@ -68,6 +69,7 @@ def client_handler():
                         last_miner_notify_flag = True
 
                 if "result" in msg:
+                    print(msg)
                     if "pow" in msg["result"]:
                         print(
                             "NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE  NEW BLOCK FOUND!! YEEEE")
@@ -78,13 +80,13 @@ def client_handler():
 
 
 def mining_submit_handler(submit_msg, extranonce):
-    global last_miner_notify, last_miner_notify_cnt
+    global last_miner_notify, last_miner_notify_cnt, cli
+
     timestamp_dec = str(int(submit_msg["params"][3], 16))
     nonce = str(int(submit_msg["params"][4], 16))
     payload = extranonce + submit_msg["params"][2]
     msg = '{"id": 10, "method": "miner-submit", "params": [{"payload": "' + payload + '","timestamp":' + timestamp_dec + ',"nonce":' + nonce + '}]}\n'
-    #print("To wallet: " + msg)
-
+    #print("Pow to wallet: " + str(msg))
     #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
     if wallet_json_rpc.wallet_ok == True:
