@@ -1,4 +1,4 @@
-import client, server, accountancy, mining, wallet_json_rpc
+import client, server, accountancy, mining, wallet_json_rpc, restapi
 import threading, time
 from params import *
 from log_module import *
@@ -45,3 +45,5 @@ server.start_diff_servers()
 
 accountancy.start_payment_processor()
 mining.print_stat()
+
+restapi.start_restapi()
