@@ -27,12 +27,15 @@ tar -xf x86_x64-linux-openssl-1.1.tar.gz
 chmod +x microcoind
 nohup ./microcoind -r &
 ```
+- open mining ports 3333 and 3334
 - clone the pool repo
 - set parameters in config.txt. For default settings set only the first 2 parameters:
  - pool_fee: your pool fee in percentage
  - pool_account: the account where your pool fee will be sent to
 - run the pool
 ```
+sudo ufw allow 3333
+sudo ufw allow 3334
 git clone https://github.com/tamasvegera/protopool
 cd protopool
 vim config.txt
