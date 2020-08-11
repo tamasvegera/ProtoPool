@@ -14,14 +14,34 @@
  - easy to install
  # Get started
  Detailed tutorial will be available soon.
- 
-- download MicroCoin daemon 1.0.3.2.: https://github.com/MicroCoinHU/MicroCoin-Daemon/releases/tag/v1.0.3.2
-  Later versions have a bug in sending payments. Will be fixed soon.
+ Main steps:
+ - download MCC daemon 1.3.6. and sync blockchain, then stop it
+ - download MCC daemon 1.0.3.2 and start in the background
+ - download and start pool
+ ------------------------------
+- download MicroCoin daemon 1.3.6.: https://github.com/MicroCoinHU/MicroCoin-Daemon/releases/download/v1.3.6/MicroCoinD-linux.zip
 - unpack
 - set executable permission
 - run
 - wait for daemon sync, it can take hours
 ```
+mkdir mccd_136
+cd mccd_136
+wget https://github.com/MicroCoinHU/MicroCoin-Daemon/releases/download/v1.3.6/MicroCoinD-linux.zip
+unzip MicroCoinD-linux.zip
+chmod +x MicroCoinD
+./MicroCoinD
+```
+- download MicroCoin daemon 1.0.3.2.: https://github.com/MicroCoinHU/MicroCoin-Daemon/releases/tag/v1.0.3.2
+  Later versions have a bug in sending payments. Will be fixed soon.
+- unpack
+- set executable permission
+- run
+
+```
+cd ..
+mkdir mccd_1032
+cd mccd_1032
 wget https://github.com/MicroCoinHU/microcoind/files/2408042/x86_x64-linux-openssl-1.1.tar.gz
 tar -xf x86_x64-linux-openssl-1.1.tar.gz
 chmod +x microcoind
