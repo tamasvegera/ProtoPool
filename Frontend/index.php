@@ -46,7 +46,7 @@
 			<div class="card">
 			<div class="card-body"><div class="card-title">
 			<h5>Check your mining stat!</h5></div>
-			<form class="form" action="http://pool.microcoin.hu/user_stat.php" method="post">
+			<form class="form" action="/user_stat_v2.php" method="post">
 			<div class="form-row">
 			<div class="col-10">			
 				<input placeholder="Pre-dash of your account number" class="form-control" type="text" name="account">
@@ -66,7 +66,9 @@
 			<div class="card"><div class="card-body">			
 			<div class="card-title"><h5>Parameters</h5></div>
 			<table class="table table-sm" cellspacing="4" cellpadding="2">
-			<tbody><tr><th align="right">Payout:</th><td>every block after confirmation</td></tr>
+			<tbody>
+			<tr><th align="right">Pool hashrate:</th><td><?php include 'pool_hr.php';?></td></tr>
+			<tr><th align="right">Payout:</th><td>every block after confirmation</td></tr>
 			<tr><th align="right">Confirmation time:</th><td>10 blocks</td></tr>
 			<tr><th align="right">Algo:</th><td>Pascal</td></tr>
 			<tr><th align="right">TxFee:</th><td>0.0002 MCC</td></tr>

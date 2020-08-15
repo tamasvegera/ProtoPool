@@ -6,6 +6,8 @@ diffs = [1,32]
 diff_ports = [3333,3334]
 max_conn = 200
 
+def get_server_diffs():
+    return diffs
 
 def send_mining_notify_to_all():
     for miner in mining.miner_conns[:]:
@@ -125,6 +127,7 @@ def connection_handler(conn, addr, difficulty):
                             stratum.send_submit_ack(new_miner, msg["id"])
                             timestamp = time.time()
                             mining.shares[account].add_share(timestamp, difficulty)
+                            mining.add_share_for_hr_calc(account, difficulty)
                             #print("Share accepted from: " + new_miner.addr[0])
                         else:
                             stratum.send_submit_error(new_miner, msg["id"])

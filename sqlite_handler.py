@@ -209,6 +209,20 @@ class Database:
 
         return retval
 
+    def get_account_payments(self, account):
+        sql = "SELECT timestamp, reward_block, from_account, amount, paid, orphan FROM payments WHERE to_account = ? ORDER BY reward_block DESC LIMIT 100"
+        params = (account,)
+
+        self.wait_and_lock_busy()
+
+        c = self.conn.cursor()
+        c.execute(sql, params)
+
+        retval = c.fetchall()
+        self.unlock_busy()
+
+        return retval
+
     def is_block_in_db_already(self, block):
         sql = "SELECT * FROM payments WHERE reward_block = ?"
 
