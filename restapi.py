@@ -2,7 +2,7 @@
 from flask import Flask, jsonify
 import threading
 from params import *
-import mining
+import mining, sqlite_handler
 
 app = Flask(__name__)
 
@@ -40,7 +40,8 @@ def get_miner_data(account):
         "hashrate": str(round(mining.get_hr(account) / 10**9, 3)) + " Gh",
         "1hour":            0,
         "24hours":          0,
-        "average_mined":    0
+        "average_mined":    0,
+        "payments":         sqlite_handler.db.get_account_payments(account)
     }
     return jsonify({'miner_data': miner_data})
 
