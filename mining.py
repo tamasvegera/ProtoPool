@@ -87,6 +87,9 @@ def get_hr(account):
                 new_timestamps.append(ts)
         hr_shares[account][diff] = new_timestamps
 
+        if len(hr_shares[account][diff]) < 2:   # can't calculate from 0 or 1 shares
+            continue
+
         # get average share time
         last_share = hr_shares[account][diff][-1]
         first_share = hr_shares[account][diff][0]
