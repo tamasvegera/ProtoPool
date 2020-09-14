@@ -145,12 +145,12 @@ def send_payment(from_account, to_account, amount, block):
         logger.info("Payment sent from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(amount))
     else:
         if response["error"]["code"] == 1004:
+            print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(
+                amount) + "  " + response["error"]["message"])
             raise WalletInvalidOperationError
         elif response["error"]["code"] == 1005:       # invalid public key -> orphan
             raise WalletPubKeyError
         elif response["error"]["code"] == 1002:
-            print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(
-                amount) + "  " + response["error"]["message"])
             raise WalletInvalidTargetAccountError
         else:
             raise Exception
