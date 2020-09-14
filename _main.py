@@ -7,7 +7,7 @@ from log_module import *
 # - when miner connected before first mining-notify comes from wallet, it throws an error from stratum-47
 # - rounding errors in balance calculation, example: from_account=1084190
 # - wallet connection crashes sometimes after mining-submit
-#
+# - soft exit
 #
 class WalletNotFoundError(Exception):
     pass
