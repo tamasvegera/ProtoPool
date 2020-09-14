@@ -239,7 +239,7 @@ def payment_processor():
             return False
         except wallet_json_rpc.WalletInvalidTargetAccountError:
             # TODO handle invalid target account. But if it's validated on auth, then no need for that.
-            logger.info("Invalid target account: " + row[3])
+            logger.info("Invalid target account: " + str(row[3]))
         else:
             sqlite_handler.db.set_payment_to_paid(row[1], row[2], row[3])
 
