@@ -94,6 +94,7 @@ def connection_handler(conn, addr, difficulty):
 
                 elif msg["method"] == "mining.authorize":
                     try:
+                        #TODO check if account is a valid account number!
                         account = int(((msg["params"][0]).split('-'))[0])
                         try:
                             accountancy.account_fees[account] = int(msg["params"][1])

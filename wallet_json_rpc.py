@@ -26,6 +26,11 @@ class WalletInvalidOperationError(Exception):
 class WalletNotReadyError(Exception):
     pass
 
+
+class WalletInvalidTargetAccountError(Exception):
+    pass
+
+
 def get_block_reward(block):
     msg = {"jsonrpc": "2.0", "method": "getblock", "params": {"block": block}, "id": 123}
     try:
@@ -144,9 +149,9 @@ def send_payment(from_account, to_account, amount, block):
             raise WalletInvalidOperationError
         elif response["error"]["code"] == 1005:       # invalid public key -> orphan
             raise WalletPubKeyError
+        elif response["error"]["code"] == 1002:
+            raise WalletInvalidTargetAccountError
         else:
-            print("Payment ERROR from: " + str(from_account) + " to: " + str(to_account) + ", amount: " + str(
-                amount) + "  " + response["error"]["message"])
             raise Exception
 
 def wallet_has_nodes():
