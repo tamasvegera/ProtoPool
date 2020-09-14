@@ -68,6 +68,7 @@
 			<table class="table table-sm" cellspacing="4" cellpadding="2">
 			<tbody>
 			<tr><th align="right">Pool hashrate:</th><td><?php include 'pool_hr.php';?></td></tr>
+			<tr><th align="right">Pool workers:</th><td><?php include 'pool_workers.php';?></td></tr>
 			<tr><th align="right">Payout:</th><td>every block after confirmation</td></tr>
 			<tr><th align="right">Confirmation time:</th><td>10 blocks</td></tr>
 			<tr><th align="right">Algo:</th><td>Pascal</td></tr>
