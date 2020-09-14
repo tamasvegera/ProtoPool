@@ -237,7 +237,7 @@ def payment_processor():
                 sqlite_handler.db.set_block_to_orphan(row[1])
         except wallet_json_rpc.WalletCommError:
             return False
-        except WalletInvalidTargetAccountError:
+        except wallet_json_rpc.WalletInvalidTargetAccountError:
             # TODO handle invalid target account. But if it's validated on auth, then no need for that.
             logger.info("Invalid target account: " + row[3])
         else:
