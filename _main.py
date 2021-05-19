@@ -1,7 +1,13 @@
-import client, server, accountancy, mining, wallet_json_rpc, restapi
-import threading, time
+import client
+import server
+import accountancy
+import mining
+import wallet_json_rpc
+import restapi
+import threading
+import time
 from params import *
-from log_module import *
+from log_module import logger
 
 #TODO
 # - when miner connected before first mining-notify comes from wallet, it throws an error from stratum-47
@@ -13,7 +19,7 @@ class WalletNotFoundError(Exception):
     pass
 
 def wallet_notify_watchdog():
-    if client.last_miner_notify_flag == False:
+    if client.last_miner_notify_flag is False:
         try:
             client.cli.close()
         except Exception as e:
@@ -28,7 +34,7 @@ logger.info("Starting MicroCoin mining pool by vegtamas. Pool version: " + str(v
 while True:
     print("Waiting for wallet sync")
     result = wallet_json_rpc.wait_for_wallet_start()
-    if result == True:
+    if result is True:
         break
     time.sleep(5)
 
