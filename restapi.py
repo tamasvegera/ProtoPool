@@ -1,8 +1,8 @@
 #!flask/bin/python
 from flask import Flask, jsonify
-import threading
 from params import *
-import mining, sqlite_handler
+import mining
+import sqlite_handler
 
 app = Flask(__name__)
 
