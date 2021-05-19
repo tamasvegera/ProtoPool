@@ -235,9 +235,6 @@ class Database:
 
         self.unlock_busy()
 
-        if len(result):
-            return True
-        else:
-            return False
+        return bool(len(result))
 
 db = Database(main_db_file)
