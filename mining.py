@@ -1,5 +1,6 @@
-import stratum, server
-import threading, time
+import server
+import threading
+import time
 
 shares_of_current_block = 0
 
