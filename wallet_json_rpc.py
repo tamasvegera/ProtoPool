@@ -58,10 +58,7 @@ def is_block_matured(block):
         print("From wallet jsonrpc: " + str(response))
         return False
 
-    if response["result"]["maturation"] >= maturation_time:
-        return True
-    else:
-        return False
+    return bool(response["result"]["maturation"] >= maturation_time)
 
 def check_block_pubkey(block):
     global pool_public_key
@@ -115,7 +112,7 @@ def unlock_wallet():
         raise WalletCommError
 
     response = json.loads(response_raw.text)
-    if response["result"] == False:
+    if response["result"] is False:
         print("Wallet can't be unlocked.")
 
 def lock_wallet():
@@ -124,7 +121,7 @@ def lock_wallet():
     response = json.loads(response_raw.text)
 
 def send_payment(from_account, to_account, amount, block):
-    if wallet_ok == False:
+    if wallet_ok is False:
         raise WalletNotReadyError
     payload = "pool share, block: " + str(block)
     payload = payload.encode('utf-8')
@@ -162,7 +159,7 @@ def wallet_has_nodes():
             raise WalletCommError
 
         response = json.loads(response_raw.text)
-        if response["result"]["ready"] == False and response["result"]["ready_s"] == "Alone in the world...":
+        if response["result"]["ready"] is False and response["result"]["ready_s"] == "Alone in the world...":
             wallet_ok = False
             return False
         else:
