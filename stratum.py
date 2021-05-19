@@ -1,5 +1,5 @@
 import client
-from log_module import *
+from log_module import logger
 
 import server
 
