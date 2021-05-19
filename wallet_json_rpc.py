@@ -79,10 +79,7 @@ def check_block_pubkey(block):
         return False
     enc_pubkey = response["result"]["enc_pubkey"]
 
-    if enc_pubkey == pool_public_key:
-        return True
-    else:
-        return False
+    return bool(enc_pubkey == pool_public_key)
 
 def get_last_block():
     msg = {"jsonrpc": "2.0", "method": "getblockcount", "params": {"last": 1}, "id": 123}
