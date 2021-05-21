@@ -1,7 +1,10 @@
-import threading, time
-import mining, wallet_json_rpc, sqlite_handler
+import threading
+import time
+import mining
+import wallet_json_rpc
+import sqlite_handler
 from params import *
-from log_module import *
+from log_module import logger
 
 payment_batches = []
 account_fees = {}
