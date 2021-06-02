@@ -42,8 +42,8 @@ chmod +x MicroCoinD
 cd ..
 mkdir mccd_1032
 cd mccd_1032
-wget https://github.com/MicroCoinHU/microcoind/files/2408042/x86_x64-linux-openssl-1.1.tar.gz
-tar -xf x86_x64-linux-openssl-1.1.tar.gz
+wget https://github.com/MicroCoinHU/microcoind/files/2408030/x86_x64-linux-openssl-1.0.tar.gz
+tar -xf x86_x64-linux-openssl-1.0.tar.gz
 chmod +x microcoind
 nohup ./microcoind -r &
 ```
