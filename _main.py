@@ -44,7 +44,8 @@ wallet_json_rpc.get_public_key()
 thread_client = threading.Thread(target=client.client_handler)
 thread_client.start()
 
-server.start_diff_servers()
+if(wallet_json_rpc.wallet_ok):
+    server.start_diff_servers()
 
 #thread_mining_notify = threading.Thread(target=server.send_mining_notify_to_all)
 #thread_mining_notify.start()
