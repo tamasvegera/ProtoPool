@@ -1,7 +1,6 @@
 import client
-from log_module import logger
-
 import server
+from log_module import logger
 
 extranonce2_size = 8
 job_id = 0

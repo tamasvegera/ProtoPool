@@ -1,6 +1,9 @@
-import requests, json, accountancy
-from params import *
-from log_module import *
+import requests
+import json
+
+import accountancy
+from params import wallet_jsonrpc_ip, wallet_jsonrpc_port, maturation_time
+from log_module import logger
 
 wallet_jsonrpc_ip_port = wallet_jsonrpc_ip + ':' + str(wallet_jsonrpc_port)
 

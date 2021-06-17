@@ -1,6 +1,7 @@
-import server
 import threading
 import time
+
+import server
 
 shares_of_current_block = 0
 

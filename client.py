@@ -1,8 +1,11 @@
 import socket
 import json
-import server, accountancy, wallet_json_rpc
+
+import server
+import accountancy
+import wallet_json_rpc
+from params import wallet_mining_ip, wallet_mining_port
 from log_module import logger
-from params import *
 
 last_miner_notify_flag = True
 last_miner_notify = ["", "", ""]

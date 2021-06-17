@@ -1,6 +1,7 @@
 #!flask/bin/python
 from flask import Flask, jsonify
-from params import *
+
+from params import pool_fee
 import mining
 import sqlite_handler
 

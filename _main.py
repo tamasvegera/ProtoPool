@@ -1,12 +1,13 @@
+import threading
+import time
+
 import client
 import server
 import accountancy
 import mining
 import wallet_json_rpc
 import restapi
-import threading
-import time
-from params import *
+from params import version
 from log_module import logger
 
 #TODO

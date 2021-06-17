@@ -1,7 +1,8 @@
 import sqlite3
 from sqlite3 import Error
 import time
-from params import *
+
+from params import main_db_file
 
 class Database:
     def __init__(self, db_file):

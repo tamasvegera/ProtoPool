@@ -1,5 +1,14 @@
-import threading, socket, time, ast, binascii, hashlib
-import client, mining, stratum, accountancy
+import threading
+import socket
+import time
+import ast
+import binascii
+import hashlib
+
+import client
+import mining
+import stratum
+import accountancy
 
 host = ''
 diffs = [1,32]

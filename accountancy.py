@@ -1,9 +1,10 @@
 import threading
 import time
+
 import mining
 import wallet_json_rpc
 import sqlite_handler
-from params import *
+from params import pplns_interval, pool_account, pool_fee, payment_fee, payment_fee_to_pool, payment_prec, orphan_age_limit
 from log_module import logger
 
 payment_batches = []
