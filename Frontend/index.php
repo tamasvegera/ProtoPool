@@ -73,7 +73,7 @@
 			<tr><th align="right">Confirmation time:</th><td>10 blocks</td></tr>
 			<tr><th align="right">Algo:</th><td>Pascal</td></tr>
 			<tr><th align="right">TxFee:</th><td>0.0002 MCC</td></tr>
-			<tr><th align="right">CPU, GPU, RIG (diff: 2):</th><td>pool.microcoin.hu:3333</td></tr>
+			<tr><th align="right">CPU, GPU, RIG (diff: 1):</th><td>pool.microcoin.hu:3333</td></tr>
 			<tr><th align="right">Nicehash (diff: 32):</th><td>pool.microcoin.hu:3334</td></tr>
 			<tr><th align="right">user:</th><td>pre-dash of your account number</td></tr>
 			<tr><th align="right">pass:</th><td>pool fee in percentage. Valid values: 2-100. Any text or invalid value will set the fee to default 2%.</td></tr>
