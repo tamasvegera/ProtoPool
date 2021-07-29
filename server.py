@@ -120,7 +120,7 @@ def connection_handler(conn, addr, difficulty):
                     new_miner.set_account(account)
                     mining.miner_conns.append(new_miner)
                     if account not in mining.miners:
-                        mining.shares[account] = mining.pplns_shares()
+                        mining.shares[account] = new_miner
                         mining.miners[account] = 0      #set shares to 0 for that account
                     stratum.send_auth_ack(new_miner,msg["id"])
 
