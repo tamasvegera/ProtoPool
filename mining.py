@@ -19,15 +19,13 @@ class miner_conn():
     def __init__(self, connection, address):
         self.conn = connection
         self.addr = address
+        self.timestamps = {}
     def set_account(self, account):
         self.account = account
-miner_conns = []
-
-class pplns_shares():
-    def __init__(self):
-        self.timestamps = {}
     def add_share(self, timestamp, difficulty):
         self.timestamps[timestamp] = difficulty
+
+miner_conns = []
 
 def print_stat():
     global shares_of_current_block, miner_conns
