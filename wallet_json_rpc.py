@@ -219,3 +219,32 @@ def get_account_balance(account):
 
     response = json.loads(response_raw.text)
     return response["result"]["balance"]
+
+def get_current_block():
+    data = {"jsonrpc": "2.0", "method": "getblockcount", "id": 123}
+
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
+    except:
+        raise WalletCommError
+
+    response = json.loads(response_raw.text)
+    current_block = response["result"]
+    print(current_block)
+    return current_block
+
+def get_net_hashrate(current_block):
+    data = {"jsonrpc": "2.0", "method": "getblock", "params":{"block":current_block-1}, "id": 123}
+
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
+    except:
+        raise WalletCommError
+
+    response = json.loads(response_raw.text)
+
+    nethash_khs = response["result"]["hashratekhs"]
+
+    nethash_ghs = round((nethash_khs/1000000), 2) #divides by 1000000 to get MHs, and rounds to 2 decimals
+
+    return nethash_ghs
