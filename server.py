@@ -99,7 +99,7 @@ def connection_handler(conn, addr, difficulty):
                 if msg["method"] == "mining.subscribe":
                     extranonce = stratum.send_subscribe_ack(new_miner, msg["id"])
                     stratum.send_difficulty(new_miner, difficulty, msg["id"])
-                    stratum.send_mining_notify(new_miner, msg[id])
+                    stratum.send_mining_notify(new_miner, msg["id"])
 
                 elif msg["method"] == "mining.authorize":
                     try:
