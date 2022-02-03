@@ -240,6 +240,8 @@ def payment_processor():
         except wallet_json_rpc.WalletInvalidTargetAccountError:
             # TODO handle invalid target account. But if it's validated on auth, then no need for that.
             logger.info("Invalid target account: " + str(row[3]))
+        except wallet_json_rpc.WalletInvalidOperationError:
+            pass        # TODO it's probably a balance issue which occurs rarely. Sometimes payouts fails and rewards are sent twice for an account and there is no money left for the rest.
         else:
             sqlite_handler.db.set_payment_to_paid(row[1], row[2], row[3])
 
