@@ -1,7 +1,6 @@
 import client
-from log_module import *
-
 import server
+from log_module import logger
 
 extranonce2_size = 8
 job_id = 0
@@ -40,7 +39,7 @@ def send_stratum_msg(miner, id, method, params):
 
     send_tcp_msg(miner,msg)
 
-def send_subscribe_ack(miner):
+def send_subscribe_ack(miner, id):
     global extranonce2_size, unique_miner_id_cnt, needed_extranonce_size
 
     val_str = str(unique_miner_id_cnt)
@@ -56,17 +55,22 @@ def send_subscribe_ack(miner):
         extranonce = extranonce + '30'
 
     unique_miner_id_cnt += 1
-    msg = '{"id": 1, "error": null, "result": [[["mining.notify", "00000000000000000000000000000000"]],"' + extranonce + '",' + str(extranonce2_size) + ']}\n'
+    msg = '{"id":' + str(id) + ', "error": null, "result": [[["mining.notify", "00000000000000000000000000000000"]],"' + extranonce + '",' + str(extranonce2_size) + ']}\n'
     send_tcp_msg(miner, msg)
     return extranonce
 
-def send_difficulty(miner, difficulty):
-    msg = '{"id": null, "method": "mining.set_difficulty", "params": [' + str(difficulty) + ']}\n'
+def send_difficulty(miner, difficulty, id):
+    msg = '{"id":' + str(id) + ', "method": "mining.set_difficulty", "params": [' + str(difficulty) + ']}\n'
     send_tcp_msg(miner, msg)
 
 def send_auth_ack(miner,id):
-    msg = '{"id":' + str(id) + ', "error": null, "result": true}\n'
+    msg = '{"id":' + str(id) + ', "result": true, "error": null}\n'
     send_tcp_msg(miner,msg)
+
+def send_auth_error(miner, id):
+    error = '{"id":' + str(id) + ', "result": null, "error": [20, "Wrong username!", null]}'
+    msg = '{"id":' + str(id) + ', "result": null, "error":' + str(error) + '}\n'
+    send_tcp_msg(miner, msg)
 
 def send_submit_ack(miner,id):
     msg = '{"id":' + str(id) + ',"result":true,"error":null}\n'
@@ -76,11 +80,11 @@ def send_submit_error(miner,id):
     msg = '{"id":' + str(id) + ',"result":false,"error":null}\n'
     send_tcp_msg(miner,msg)
 
-def send_extranonce_subscribe_ack(miner):
-    msg = '{"id": 5, "error": null, "result": true}\n'
+def send_extranonce_subscribe_ack(miner, id):
+    msg = '{"id":' + str(id) + ', "error": null, "result": true}\n'
     send_tcp_msg(miner,msg)
 
-def send_mining_notify(miner):
+def send_mining_notify(miner, id):
     global job_id
     params = []
     params.append(str(hex(job_id)[2:]))
@@ -93,7 +97,7 @@ def send_mining_notify(miner):
     params.append(str(hex(client.last_miner_notify[client.last_miner_notify_cnt]["params"][0]["timestamp"])[2:]))
     params.append('true')
 
-    send_stratum_msg(miner, 'null', 'mining.notify', params)
+    send_stratum_msg(miner, id, 'mining.notify', params)
     job_id += 1
     params[0] = str(hex(job_id)[2:])
     params[8] = 'true'

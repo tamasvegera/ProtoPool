@@ -1,7 +1,11 @@
-import threading, time
-import mining, wallet_json_rpc, sqlite_handler
-from params import *
-from log_module import *
+import threading
+import time
+
+import mining
+import wallet_json_rpc
+import sqlite_handler
+from params import pplns_interval, pool_account, pool_fee, payment_fee, payment_fee_to_pool, payment_prec, orphan_age_limit
+from log_module import logger
 
 payment_batches = []
 account_fees = {}
@@ -146,7 +150,7 @@ def do_payment_batch():
 
     nothing_to_pay = True
     for payment_batch in payment_batches:
-        if payment_batch.paid == False:
+        if payment_batch.paid is False:
             # DO payments
             #create multioperation
             payment_batch_can_be_paid = True
@@ -158,10 +162,10 @@ def do_payment_batch():
                 #TODO check in DB if it's paid or not
                 result = wallet_json_rpc.send_payment(payment_batch.from_account, account, payment_batch.payments[account], payment_batch.block)
 
-                if result == False:
+                if result is False:
                     payment_batch_can_be_paid = False
                     break
-                elif result != True:
+                elif result is not True:
                     if "code" in result:
                         if result["code"] == 1004:
                             payment_batch_can_be_paid = False
@@ -172,7 +176,7 @@ def do_payment_batch():
                     except:
                         print("SQlite error")
             #TODO write to file
-            if payment_batch_can_be_paid == True:
+            if payment_batch_can_be_paid is True:
                 nothing_to_pay = False
                 payment_batch.paid = True  # TODO igy szemeteli a memoriat, fixalni, torolni
                 print("Successful payments!")

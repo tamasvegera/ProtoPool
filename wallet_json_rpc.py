@@ -1,6 +1,9 @@
-import requests, json, accountancy
-from params import *
-from log_module import *
+import requests
+import json
+
+import accountancy
+from params import wallet_jsonrpc_ip, wallet_jsonrpc_port, maturation_time
+from log_module import logger
 
 wallet_jsonrpc_ip_port = wallet_jsonrpc_ip + ':' + str(wallet_jsonrpc_port)
 
@@ -58,10 +61,7 @@ def is_block_matured(block):
         print("From wallet jsonrpc: " + str(response))
         return False
 
-    if response["result"]["maturation"] >= maturation_time:
-        return True
-    else:
-        return False
+    return bool(response["result"]["maturation"] >= maturation_time)
 
 def check_block_pubkey(block):
     global pool_public_key
@@ -79,10 +79,7 @@ def check_block_pubkey(block):
         return False
     enc_pubkey = response["result"]["enc_pubkey"]
 
-    if enc_pubkey == pool_public_key:
-        return True
-    else:
-        return False
+    return bool(enc_pubkey == pool_public_key)
 
 def get_last_block():
     msg = {"jsonrpc": "2.0", "method": "getblockcount", "params": {"last": 1}, "id": 123}
@@ -118,7 +115,7 @@ def unlock_wallet():
         raise WalletCommError
 
     response = json.loads(response_raw.text)
-    if response["result"] == False:
+    if response["result"] is False:
         print("Wallet can't be unlocked.")
 
 def lock_wallet():
@@ -127,7 +124,7 @@ def lock_wallet():
     response = json.loads(response_raw.text)
 
 def send_payment(from_account, to_account, amount, block):
-    if wallet_ok == False:
+    if wallet_ok is False:
         raise WalletNotReadyError
     payload = "pool share, block: " + str(block)
     payload = payload.encode('utf-8')
@@ -165,7 +162,7 @@ def wallet_has_nodes():
             raise WalletCommError
 
         response = json.loads(response_raw.text)
-        if response["result"]["ready"] == False and response["result"]["ready_s"] == "Alone in the world...":
+        if response["result"]["ready"] is False and response["result"]["ready_s"] == "Alone in the world...":
             wallet_ok = False
             return False
         else:
@@ -222,3 +219,32 @@ def get_account_balance(account):
 
     response = json.loads(response_raw.text)
     return response["result"]["balance"]
+
+def get_current_block():
+    data = {"jsonrpc": "2.0", "method": "getblockcount", "id": 123}
+
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
+    except:
+        raise WalletCommError
+
+    response = json.loads(response_raw.text)
+    current_block = response["result"]
+    print(current_block)
+    return current_block
+
+def get_net_hashrate(current_block):
+    data = {"jsonrpc": "2.0", "method": "getblock", "params":{"block":current_block-1}, "id": 123}
+
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
+    except:
+        raise WalletCommError
+
+    response = json.loads(response_raw.text)
+
+    nethash_khs = response["result"]["hashratekhs"]
+
+    nethash_ghs = round((nethash_khs/1000000), 2) #divides by 1000000 to get MHs, and rounds to 2 decimals
+
+    return nethash_ghs

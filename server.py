@@ -1,5 +1,14 @@
-import threading, socket, time, ast, binascii, hashlib
-import client, mining, stratum, accountancy
+import threading
+import socket
+import time
+import ast
+import binascii
+import hashlib
+
+import client
+import mining
+import stratum
+import accountancy
 
 host = ''
 diffs = [1,32]
@@ -11,7 +20,7 @@ def get_server_diffs():
 
 def send_mining_notify_to_all():
     for miner in mining.miner_conns[:]:
-        thread = threading.Thread(target=stratum.send_mining_notify,args=(miner,))
+        thread = threading.Thread(target=stratum.send_mining_notify,args=(miner, 'null'))
         thread.start()
 
 def calc_block_pow(part1, payload, part3, timestamp, nonce):
@@ -88,9 +97,9 @@ def connection_handler(conn, addr, difficulty):
                 if "method" not in msg:
                     continue
                 if msg["method"] == "mining.subscribe":
-                    extranonce = stratum.send_subscribe_ack(new_miner)
-                    stratum.send_difficulty(new_miner, difficulty)
-                    stratum.send_mining_notify(new_miner)
+                    extranonce = stratum.send_subscribe_ack(new_miner, msg["id"])
+                    stratum.send_difficulty(new_miner, difficulty, msg["id"])
+                    stratum.send_mining_notify(new_miner, msg["id"])
 
                 elif msg["method"] == "mining.authorize":
                     try:
@@ -104,14 +113,14 @@ def connection_handler(conn, addr, difficulty):
                             accountancy.account_fees[account] = accountancy.pool_fee
                     except:
                         print("Wrong account name")
+                        stratum.send_auth_error(new_miner, msg["id"])
                         new_miner.conn.close()
                         break   #TODO send error msg
 
                     new_miner.set_account(account)
                     mining.miner_conns.append(new_miner)
                     if account not in mining.miners:
-                        miner_shares = mining.pplns_shares()
-                        mining.shares[account] = miner_shares
+                        mining.shares[account] = new_miner
                         mining.miners[account] = 0      #set shares to 0 for that account
                     stratum.send_auth_ack(new_miner,msg["id"])
 
@@ -140,7 +149,7 @@ def connection_handler(conn, addr, difficulty):
                     last_timestamp = msg["params"][3]
                     last_nonce = msg["params"][4]
                 elif msg["method"] == "mining.extranonce.subscribe":
-                    stratum.send_extranonce_subscribe_ack(new_miner)
+                    stratum.send_extranonce_subscribe_ack(new_miner, msg["id"])
         else:
             close_miner_conn(new_miner)
 

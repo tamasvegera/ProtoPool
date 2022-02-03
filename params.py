@@ -1,6 +1,8 @@
 import json
+
 with open('config.txt') as f:
     config_data = json.load(f)
+    f.close()
 
 version = 2.0
 

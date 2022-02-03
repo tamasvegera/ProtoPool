@@ -1,7 +1,8 @@
 import sqlite3
 from sqlite3 import Error
 import time
-from params import *
+
+from params import main_db_file
 
 class Database:
     def __init__(self, db_file):
@@ -235,9 +236,6 @@ class Database:
 
         self.unlock_busy()
 
-        if len(result):
-            return True
-        else:
-            return False
+        return bool(len(result))
 
 db = Database(main_db_file)

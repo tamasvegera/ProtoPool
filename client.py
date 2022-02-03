@@ -1,7 +1,11 @@
-import socket, threading, ast, json
-import server, accountancy, wallet_json_rpc
-from log_module import *
-from params import *
+import socket
+import json
+
+import server
+import accountancy
+import wallet_json_rpc
+from params import wallet_mining_ip, wallet_mining_port
+from log_module import logger
 
 last_miner_notify_flag = True
 last_miner_notify = ["", "", ""]
@@ -32,7 +36,7 @@ def client_handler():
             print(e)
             wallet_ok = False
 
-        while wallet_ok == True:
+        while wallet_ok is True:
             try:
                 data = cli.recv(buffer)
             except Exception as e:
@@ -89,7 +93,7 @@ def mining_submit_handler(submit_msg, extranonce):
     #print("Pow to wallet: " + str(msg))
     #print("Wallet ok:   " + str(wallet_json_rpc.wallet_ok))
 
-    if wallet_json_rpc.wallet_ok == True:
+    if wallet_json_rpc.wallet_ok is True:
         cli.sendall(msg.encode())
         print("Block pow sent to wallet:")
         print(msg.encode())
