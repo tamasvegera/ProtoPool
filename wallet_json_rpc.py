@@ -282,7 +282,7 @@ def change_key(new_pubkey, acc_number):
     response = json.loads(response_raw.text)
     if "error" in response:
         print(response)
-        if response["error"]["code"] == 1005:
+        if "Invalid public key" in response["error"]["message"]:
             raise InputParameterError
         else:
             raise WalletCommError
