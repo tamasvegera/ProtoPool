@@ -273,7 +273,7 @@ def get_net_hashrate(current_block):
     return nethash_ghs
 
 def change_key(new_pubkey, acc_number):
-    data = {"jsonrpc":"2.0","method":"changekey","params":{"account":acc_number,"new_enc_pubkey": new_pubkey,"fee":0,"payload":"","payload_method":"none"},"id":123}
+    data = {"jsonrpc":"2.0","method":"changekey","params":{"account":acc_number,"new_b58_pubkey": new_pubkey,"fee":0,"payload":"","payload_method":"none"},"id":123}
     try:
         response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
     except:
