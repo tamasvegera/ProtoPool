@@ -77,7 +77,7 @@ def get_miner_data(account):
 
 @app.route('/get_account', methods=['POST'])
 def get_account():
-    pubkey = request.form['pubkey']
+    pubkey = request.get_json(force=True)['pubkey']
     try:
         acc_number = transfer_account_handler(pubkey)
     except wallet_json_rpc.WalletCommError:
