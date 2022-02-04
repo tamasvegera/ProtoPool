@@ -281,6 +281,9 @@ def change_key(new_pubkey, acc_number):
 
     response = json.loads(response_raw.text)
     if "error" in response:
-        raise InputParameterError
+        if response["error"]["code"] == 1005:
+            raise InputParameterError
+        else:
+            raise WalletCommError
 
     return True
