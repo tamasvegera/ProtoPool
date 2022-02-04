@@ -79,7 +79,7 @@
 							<form class="form" action="/request_account.php" method="post">
 								<div class="form-row">
 									<div class="col-10">
-										<input placeholder="Your PUBLIC key which starts with '3G'." class="form-control" type="text" name="pubkey">
+										<input placeholder="Your PUBLIC key which starts with '3G'" class="form-control" type="text" name="pubkey">
 									</div>
 									<div class="col-2">
 										<input class="btn btn-success" type="submit">
