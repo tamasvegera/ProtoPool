@@ -51,6 +51,6 @@ if(wallet_json_rpc.wallet_ok):
 #thread_mining_notify.start()
 
 accountancy.start_payment_processor()
-mining.print_stat()
+#mining.print_stat()
 
 restapi.start_restapi()

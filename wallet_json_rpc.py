@@ -14,6 +14,11 @@ wallet_ok = False
 # TODO wallet lock/unlock feature not ready yet
 wallet_password = ""
 
+
+class NoEmptyAccountError(Exception):
+    pass
+
+
 class WalletCommError(Exception):
     pass
 
@@ -31,6 +36,10 @@ class WalletNotReadyError(Exception):
 
 
 class WalletInvalidTargetAccountError(Exception):
+    pass
+
+
+class InputParameterError(Exception):
     pass
 
 
@@ -106,6 +115,20 @@ def get_last_account():
     response = json.loads(response_raw.text)
     wallet = {"account": response["result"][0]["account"], "balance":response["result"][0]["balance"]}
     return wallet
+
+def get_a_zero_balance_account_number():
+    msg = {"jsonrpc": "2.0", "method": "getwalletaccounts", "id": 123}
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=msg)
+        response = json.loads(response_raw.text)
+    except:
+        raise WalletCommError
+
+    for account in response["result"]:
+        if account["balance"] == 0:
+            return account["account"]
+
+    raise NoEmptyAccountError
 
 def unlock_wallet():
     msg = {"jsonrpc": "2.0", "method": "unlock", "params": {"pwd": wallet_password}, "id": 123}
@@ -248,3 +271,16 @@ def get_net_hashrate(current_block):
     nethash_ghs = round((nethash_khs/1000000), 2) #divides by 1000000 to get MHs, and rounds to 2 decimals
 
     return nethash_ghs
+
+def change_key(new_pubkey, acc_number):
+    data = {"jsonrpc":"2.0","method":"changekey","params":{"account":acc_number,"new_enc_pubkey": new_pubkey,"fee":0,"payload":"","payload_method":"none"},"id":123}
+    try:
+        response_raw = requests.post(wallet_jsonrpc_ip_port, json=data)
+    except:
+        raise WalletCommError
+
+    response = json.loads(response_raw.text)
+    if "error" in response:
+        raise InputParameterError
+
+    return True

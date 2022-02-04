@@ -187,7 +187,7 @@ def do_payment_batch():
 
 def payment_processor():
     global current_block
-    print("\nStarting payment processor")
+    #print("\nStarting payment processor")
     block_checked = []
     block_matured = []
 
