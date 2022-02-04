@@ -69,6 +69,28 @@
 				</div>
 			</div>
 
+            <div class="row">
+				<div class="col-lg-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="card-title">
+								<h5>Request a free account</h5>
+							</div>
+							<form class="form" action="/request_account.php" method="post">
+								<div class="form-row">
+									<div class="col-10">
+										<input placeholder="Your PUBLIC key which starts with '3G'." class="form-control" type="text" name="pubkey">
+									</div>
+									<div class="col-2">
+										<input class="btn btn-success" type="submit">
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="card">
