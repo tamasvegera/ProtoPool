@@ -46,7 +46,7 @@ def transfer_account_handler(new_pubkey):
         raise wallet_json_rpc.InputParameterError
 
     last_account_transferred_block = current_block
-    return True
+    return acc_number
 
 @app.route('/pool_data', methods=['GET'])
 def get_pool_data():
@@ -79,7 +79,7 @@ def get_miner_data(account):
 def get_account():
     pubkey = request.form['pubkey']
     try:
-        transfer_account_handler(pubkey)
+        acc_number = transfer_account_handler(pubkey)
     except wallet_json_rpc.WalletCommError:
         return jsonify({'result': 'An error occured on the pool side. Please try again. If you see this message multiple times please report it to the team on Discord or Telegram. Thank you!'})
     except BePatientError:
@@ -89,7 +89,7 @@ def get_account():
     except wallet_json_rpc.InputParameterError:
         return jsonify({'result': 'Wrong public key! You can export your public key from the wallet. It has to start with "3G". If you see this message multiple times please report it to the team on Discord or Telegram. Thank you!'})
 
-    return jsonify({'result': 'An empty account was successfully sent to your public key. You will see it in the next block in appr. 5 minutes.'})
+    return jsonify({'result': 'Account ' + str(acc_number) + ' was successfully sent to your public key. You will see it in the next block in appr. 5 minutes.'})
 
 def start_restapi():
     app.run(debug=False, port = 3000)
